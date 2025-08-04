@@ -1,27 +1,36 @@
 import React from 'react';
-import { Home, MessageSquare, FileText, User, ChevronRight, Eye, MessageCircle } from 'lucide-react';
+import { Home, MessageSquare, User, ChevronRight, Eye, MessageCircle, LogOut } from 'lucide-react';
 import { NavigationItem } from '../types';
 
 interface SidebarProps {
   currentPage: string;
   onNavigate: (page: string) => void;
+  userRole: 'student' | 'admin';
+  onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
-  const navigationItems: NavigationItem[] = [
+const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate, userRole, onLogout }) => {
+  const studentNavigationItems: NavigationItem[] = [
     { id: 'home', label: 'Home', icon: 'Home', path: 'home' },
     { id: 'complaint-box', label: 'Complaint Box', icon: 'MessageSquare', path: 'complaint-box' },
-    { id: 'view-complaints', label: 'Admin Complaints', icon: 'FileText', path: 'view-complaints' },
+    { id: 'public-dashboard', label: 'Public Dashboard', icon: 'Eye', path: 'public-dashboard' },
+    { id: 'feedback-module', label: 'Feedback Module', icon: 'MessageCircle', path: 'feedback-module' },
+  ];
+
+  const adminNavigationItems: NavigationItem[] = [
+    { id: 'home', label: 'Home', icon: 'Home', path: 'home' },
+    { id: 'complaint-box', label: 'Complaint Box', icon: 'MessageSquare', path: 'complaint-box' },
     { id: 'public-dashboard', label: 'Public Dashboard', icon: 'Eye', path: 'public-dashboard' },
     { id: 'feedback-module', label: 'Feedback Module', icon: 'MessageCircle', path: 'feedback-module' },
     { id: 'profile', label: 'Admin Profile', icon: 'User', path: 'profile' },
   ];
 
+  const navigationItems = userRole === 'admin' ? adminNavigationItems : studentNavigationItems;
+
   const getIcon = (iconName: string) => {
     const icons = {
       Home: Home,
       MessageSquare: MessageSquare,
-      FileText: FileText,
       User: User,
       Eye: Eye,
       MessageCircle: MessageCircle,
@@ -60,13 +69,24 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate }) => {
       
       <div className="p-6 mt-auto">
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <p className="text-sm text-blue-800 font-medium mb-1">Need Help?</p>
-          <p className="text-xs text-blue-600">Contact admin for assistance</p>
+          <p className="text-sm text-blue-800 font-medium mb-1">
+            {userRole === 'admin' ? 'Admin Panel' : 'Need Help?'}
+          </p>
+          <p className="text-xs text-blue-600">
+            {userRole === 'admin' ? 'System Management' : 'Contact admin for assistance'}
+          </p>
           <button 
-            onClick={() => alert('Admin Contact: admin@vce.edu.in\nPhone: +91 8734 290 290\nOffice Hours: 9 AM - 5 PM')}
-            className="mt-2 w-full bg-blue-600 text-white py-1 px-3 rounded text-xs hover:bg-blue-700 transition-colors"
+            onClick={userRole === 'admin' ? () => alert('Admin Features:\n• Manage Complaints\n• View Analytics\n• System Settings\n• User Management') : () => alert('Admin Contact: admin@vce.edu.in\nPhone: +91 8734 290 290\nOffice Hours: 9 AM - 5 PM')}
+            className="mt-2 w-full bg-blue-600 text-white py-1 px-3 rounded text-xs hover:bg-blue-700 transition-colors mb-2"
           >
-            Contact Admin
+            {userRole === 'admin' ? 'Admin Tools' : 'Contact Admin'}
+          </button>
+          <button 
+            onClick={onLogout}
+            className="w-full bg-red-600 text-white py-1 px-3 rounded text-xs hover:bg-red-700 transition-colors flex items-center justify-center"
+          >
+            <LogOut className="w-3 h-3 mr-1" />
+            Logout
           </button>
         </div>
       </div>

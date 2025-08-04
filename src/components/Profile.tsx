@@ -1,20 +1,54 @@
 import React from 'react';
-import { User, Mail, Phone, MapPin, Calendar, GraduationCap, Edit, Save, X, Camera, Server, Database, Wifi, Shield, Activity, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
-import { AdminProfile } from '../types';
+import { User, Mail, Phone, MapPin, Calendar, GraduationCap, Edit, Save, X, Camera, Server, Database, Wifi, Shield, Activity, CheckCircle, AlertTriangle, Clock, FileText, Eye, Trash2, Filter, Search } from 'lucide-react';
+import { AdminProfile, Complaint } from '../types';
 
 interface ProfileProps {
   adminProfile: AdminProfile;
   onUpdateProfile: (profile: AdminProfile) => void;
+  complaints: Complaint[];
+  onUpdateStatus: (id: string, status: Complaint['status']) => void;
+  onDeleteComplaint: (id: string) => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ adminProfile, onUpdateProfile }) => {
+const Profile: React.FC<ProfileProps> = ({ adminProfile, onUpdateProfile, complaints, onUpdateStatus, onDeleteComplaint }) => {
   const [isEditing, setIsEditing] = React.useState(false);
   const [showQuickStats, setShowQuickStats] = React.useState(false);
   const [showCollegeInfo, setShowCollegeInfo] = React.useState(false);
   const [showSupport, setShowSupport] = React.useState(false);
   const [showHelpResources, setShowHelpResources] = React.useState(false);
   const [showSystemStatus, setShowSystemStatus] = React.useState(false);
+  const [showComplaints, setShowComplaints] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState<string>('All');
+  const [selectedComplaint, setSelectedComplaint] = React.useState<Complaint | null>(null);
   const [profileData, setProfileData] = React.useState<AdminProfile>(adminProfile);
+
+  const statusOptions: Complaint['status'][] = ['Pending', 'In Progress', 'Resolved', 'Closed'];
+
+  const filteredComplaints = complaints.filter(complaint => {
+    const matchesSearch = complaint.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         complaint.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (complaint.name && complaint.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = statusFilter === 'All' || complaint.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusColor = (status: Complaint['status']) => {
+    switch (status) {
+      case 'Pending':
+        return 'bg-amber-100 text-amber-800';
+      case 'In Progress':
+        return 'bg-orange-100 text-orange-800';
+      case 'Resolved':
+        return 'bg-emerald-100 text-emerald-800';
+      case 'Closed':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   const handleSaveProfile = () => {
     onUpdateProfile(profileData);
@@ -88,7 +122,7 @@ const Profile: React.FC<ProfileProps> = ({ adminProfile, onUpdateProfile }) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getSystemStatusColor = (status: string) => {
     switch (status) {
       case 'online':
         return 'text-emerald-600 bg-emerald-50 border-emerald-200';
@@ -274,6 +308,107 @@ const Profile: React.FC<ProfileProps> = ({ adminProfile, onUpdateProfile }) => {
               </div>
             </div>
           </div>
+
+          {/* Admin Complaints Management */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Admin Complaints Management</h3>
+              <button 
+                onClick={() => setShowComplaints(!showComplaints)}
+                className="text-blue-600 hover:text-blue-800 text-sm"
+              >
+                {showComplaints ? 'Hide' : 'Show'} Complaints ({complaints.length})
+              </button>
+            </div>
+            
+            {showComplaints && (
+              <div className="space-y-6">
+                {/* Filters */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder="Search complaints..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    >
+                      <option value="All">All Status</option>
+                      {statusOptions.map(status => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Complaints List */}
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {filteredComplaints.length > 0 ? (
+                    filteredComplaints.map((complaint) => (
+                      <div key={complaint.id} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{complaint.subject}</h4>
+                            <p className="text-sm text-blue-600 mt-1">{complaint.issueType}</p>
+                            <p className="text-sm text-gray-600 mt-2 line-clamp-2">{complaint.description}</p>
+                            <div className="flex items-center space-x-4 mt-3 text-xs text-gray-500">
+                              <span>ID: #{complaint.id.slice(-6)}</span>
+                              <span>Date: {complaint.dateSubmitted}</span>
+                              <span>By: {complaint.name || 'Anonymous'}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <select
+                              value={complaint.status}
+                              onChange={(e) => onUpdateStatus(complaint.id, e.target.value as Complaint['status'])}
+                              className={`px-3 py-1 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-blue-500 ${getStatusColor(complaint.status)}`}
+                            >
+                              {statusOptions.map(status => (
+                                <option key={status} value={status}>{status}</option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => setSelectedComplaint(complaint)}
+                              className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded transition-colors"
+                              title="View Details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete this complaint?\n\nID: ${complaint.id}\nSubject: ${complaint.subject}\n\nThis action cannot be undone.`)) {
+                                  onDeleteComplaint(complaint.id);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p>No complaints found matching your filters</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -425,7 +560,7 @@ const Profile: React.FC<ProfileProps> = ({ adminProfile, onUpdateProfile }) => {
                           <p className="text-sm font-medium text-gray-900">{component.uptime} uptime</p>
                           <p className="text-xs text-gray-500">Last check: {component.lastCheck}</p>
                         </div>
-                        <div className={`px-3 py-1 rounded-full border ${getStatusColor(component.status)}`}>
+                        <div className={`px-3 py-1 rounded-full border ${getSystemStatusColor(component.status)}`}>
                           <div className="flex items-center space-x-1">
                             {getStatusIcon(component.status)}
                             <span className="text-sm font-medium capitalize">{component.status}</span>
@@ -441,6 +576,83 @@ const Profile: React.FC<ProfileProps> = ({ adminProfile, onUpdateProfile }) => {
 
         </div>
       </div>
+
+      {/* Complaint Detail Modal */}
+      {selectedComplaint && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Complaint Details</h3>
+                <button
+                  onClick={() => setSelectedComplaint(null)}
+                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors text-xl font-bold"
+                  title="Close"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-500">ID</label>
+                <p className="text-lg font-mono">#{selectedComplaint.id}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Subject</label>
+                <p className="text-lg">{selectedComplaint.subject}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Issue Type</label>
+                <p className="text-lg">{selectedComplaint.issueType}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Description</label>
+                <p className="text-gray-700 whitespace-pre-wrap">{selectedComplaint.description}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Submitted By</label>
+                  <p>{selectedComplaint.name || 'Anonymous'}</p>
+                  {selectedComplaint.rollNumber && (
+                    <p className="text-sm text-gray-500">{selectedComplaint.rollNumber}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Date Submitted</label>
+                  <p>{selectedComplaint.dateSubmitted}</p>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Status</label>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedComplaint.status)}`}>
+                  {selectedComplaint.status}
+                </span>
+              </div>
+              <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                <button 
+                  onClick={() => {
+                    const newStatus = prompt('Update Status:\n1. Pending\n2. In Progress\n3. Resolved\n4. Closed\n\nEnter new status:');
+                    if (newStatus && statusOptions.includes(newStatus as any)) {
+                      onUpdateStatus(selectedComplaint.id, newStatus as Complaint['status']);
+                      setSelectedComplaint(null);
+                    }
+                  }}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Update Status
+                </button>
+                <button 
+                  onClick={() => setSelectedComplaint(null)}
+                  className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Help Section at Bottom */}
       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">

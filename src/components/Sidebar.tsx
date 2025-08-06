@@ -19,9 +19,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, onNavigate, userRole, on
 
   const adminNavigationItems: NavigationItem[] = [
     { id: 'home', label: 'Home', icon: 'Home', path: 'home' },
-    { id: 'complaint-box', label: 'Complaint Box', icon: 'MessageSquare', path: 'complaint-box' },
-    { id: 'public-dashboard', label: 'Public Dashboard', icon: 'Eye', path: 'public-dashboard' },
-    { id: 'feedback-module', label: 'Feedback Module', icon: 'MessageCircle', path: 'feedback-module' },
     { id: 'profile', label: 'Admin Profile', icon: 'User', path: 'profile' },
   ];
 

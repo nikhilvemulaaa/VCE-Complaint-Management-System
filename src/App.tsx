@@ -247,7 +247,9 @@ function App() {
       case 'home':
         return <Dashboard complaints={complaints} onNavigate={handleNavigate} systemSettings={systemSettings} />;
       case 'complaint-box':
-        return <ComplaintForm onSubmit={handleSubmitComplaint} systemSettings={systemSettings} />;
+        return currentUser?.role === 'student' ? (
+          <ComplaintForm onSubmit={handleSubmitComplaint} systemSettings={systemSettings} />
+        ) : null;
       case 'profile':
         return currentUser?.role === 'admin' ? (
           <Profile 
@@ -269,9 +271,13 @@ function App() {
           <SystemSettings settings={systemSettings} onUpdateSettings={setSystemSettings} />
         ) : null;
       case 'public-dashboard':
-        return <PublicDashboard complaints={complaints} systemSettings={systemSettings} />;
+        return currentUser?.role === 'student' ? (
+          <PublicDashboard complaints={complaints} systemSettings={systemSettings} />
+        ) : null;
       case 'feedback-module':
-        return <FeedbackModule complaints={complaints} />;
+        return currentUser?.role === 'student' ? (
+          <FeedbackModule complaints={complaints} />
+        ) : null;
       default:
         return <Dashboard complaints={complaints} onNavigate={handleNavigate} systemSettings={systemSettings} />;
     }

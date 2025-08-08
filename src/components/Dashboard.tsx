@@ -121,7 +121,7 @@ const Dashboard: React.FC<DashboardProps> = ({ complaints, onNavigate, systemSet
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Submit</h3>
           <p className="text-gray-600 text-sm mb-4">Submit complaints for infrastructure, academic, hostel issues</p>
           <div className="text-xs text-gray-500 mb-4">
-            Last submission: {complaints.length > 0 ? complaints[0].dateSubmitted : 'No submissions yet'}
+            Last submission: {complaints.length > 0 ? new Date(complaints[0].created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : 'No submissions yet'}
           </div>
           <button 
             onClick={() => onNavigate('complaint-box')}
@@ -185,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({ complaints, onNavigate, systemSet
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{complaint.subject}</p>
                     <p className="text-sm text-gray-600 mt-1">{complaint.issueType}</p>
-                    <p className="text-xs text-gray-500 mt-1">{complaint.dateSubmitted}</p>
+                    <p className="text-xs text-gray-500 mt-1">{new Date(complaint.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                     complaint.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' :

@@ -5,10 +5,9 @@ export interface Complaint {
   issueType: string;
   subject: string;
   description: string;
-  dateSubmitted: string;
   status: 'Pending' | 'In Progress' | 'Resolved' | 'Closed';
   profileImage?: string;
-  created_at?: string;
+  created_at: string;
   updated_at?: string;
 }
 

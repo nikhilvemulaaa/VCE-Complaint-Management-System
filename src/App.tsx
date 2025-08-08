@@ -182,11 +182,7 @@ function App() {
     const newComplaint: Complaint = {
       ...complaintData,
       id: `CMP-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-      dateSubmitted: new Date().toLocaleDateString('en-IN', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      }),
+      created_at: new Date().toISOString(),
       status: 'Pending',
     };
 

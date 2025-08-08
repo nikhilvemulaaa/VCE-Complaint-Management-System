@@ -12,7 +12,11 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, complaints }) =>
   const pendingCount = complaints.filter(c => c.status === 'Pending').length;
   const resolvedToday = complaints.filter(c => 
     c.status === 'Resolved' && 
-    c.dateSubmitted === new Date().toLocaleDateString('en-IN', {
+    new Date(c.created_at).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }) === new Date().toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

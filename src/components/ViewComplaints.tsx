@@ -276,7 +276,7 @@ const ViewComplaints: React.FC<ViewComplaintsProps> = ({
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Date Submitted</label>
-                  <p>{selectedComplaint.dateSubmitted}</p>
+                  <p>{new Date(selectedComplaint.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
                 </div>
               </div>
               <div>

@@ -115,7 +115,7 @@ const PublicDashboard: React.FC<PublicDashboardProps> = ({ complaints, systemSet
                   <p className="text-sm text-gray-600 mt-2 line-clamp-2">{complaint.description}</p>
                   <div className="flex items-center space-x-4 mt-3 text-xs text-gray-500">
                     <span>ID: #{complaint.id.slice(-6)}</span>
-                    <span>Date: {complaint.dateSubmitted}</span>
+                    <span>Date: {new Date(complaint.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                     <span>By: {complaint.name || 'Anonymous'}</span>
                   </div>
                 </div>

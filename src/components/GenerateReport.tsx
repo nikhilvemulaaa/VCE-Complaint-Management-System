@@ -350,7 +350,7 @@ Description: ${c.description}
                           {complaint.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2">{complaint.dateSubmitted}</td>
+                      <td className="px-4 py-2">{new Date(complaint.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                     </tr>
                   ))}
                 </tbody>
